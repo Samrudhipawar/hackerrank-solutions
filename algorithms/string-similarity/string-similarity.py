@@ -1,20 +1,35 @@
-def stringSimilarity(a):
-    # Solved using Z Algorithm : http://codeforces.com/blog/entry/3107
-    n = len(a)
-    z = [0]*n
-    l=r=0
-    for i in range(1,n):
-        if (i<=r):
-            z[i]=min (r - i + 1, z[i - l])
-        while(i + z[i] < n and a[z[i]] == a[i + z[i]]):
-            z[i]+=1
-        if (i + z[i] - 1 > r):
-            l = i 
-            r = i + z[i] - 1
-    return sum(z)+n
+def z_algorithm(s):
+    """Compute the Z-array of a string s."""
+    n = len(s)
+    Z = [0] * n
+    l, r, K = 0, 0, 0
+    for i in range(n):
+        if i > r:
+            l, r = i, i
+            while r < n and s[r] == s[r - l]:
+                r += 1
+            Z[i] = r - l
+            r -= 1
+        else:
+            K = i - l
+            if Z[K] < r - i + 1:
+                Z[i] = Z[K]
+            else:
+                l = i
+                while r < n and s[r] == s[r - l]:
+                    r += 1
+                Z[i] = r - l
+                r -= 1
+    return Z
 
-if __name__ == '__main__':
-    t = input()
-    for i in range(0,t):
-        a=raw_input()
-        print stringSimilarity(a)
+def sum_of_similarities(s):
+    """Compute the sum of similarities of a string s with each of its suffixes."""
+    Z = z_algorithm(s)
+    return sum(Z) + len(s)  # + len(s) accounts for the similarity of the string with itself
+
+# Read the number of test cases
+t = int(input().strip())
+
+for _ in range(t):
+    s = input().strip()
+    print(sum_of_similarities(s))
